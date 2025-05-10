@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.5'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.graalvm.buildtools.native' version '0.10.6'
 }
 
 group = 'com.sajal'
@@ -37,6 +38,26 @@ dependencies {
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+}
+graalvmNative {
+    binaries {
+        main {
+            imageName = 'outbox_pattern'
+            buildArgs.add('--verbose')
+            buildArgs.add('--no-fallback')
+            buildArgs.add('-H:+ReportExceptionStackTraces')
+
+            // Enable JNI support for H2 database
+            buildArgs.add('-J-Dorg.graalvm.nativeimage.jni=true')
+
+            // Configure H2 database
+            buildArgs.add('-H:IncludeResources=.*\\.sql')
+            buildArgs.add('-H:+AddAllCharsets')
+        }
+    }
+    metadataRepository {
+        enabled = true
+    }
 }
 
 tasks.named('test') {
