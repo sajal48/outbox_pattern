@@ -1,0 +1,85 @@
+= Outbox Pattern Demo Application
+:toc:
+:icons: font
+:source-highlighter: highlight.js
+
+== Overview
+This project demonstrates the implementation of the Outbox pattern using Spring Boot, Kafka, and H2 Database.
+
+== Technology Stack
+* Java 21 (GraalVM)
+* Spring Boot 3.4.5
+* Apache Kafka
+* H2 Database
+* Docker & Docker Compose
+
+== Prerequisites
+* Docker
+* Docker Compose
+* cURL (for testing)
+
+== Running the Application
+
+1. Start the entire stack:
+[source,bash]
+----
+docker-compose up -d
+----
+
+2. Wait for all services to be healthy (approximately 1-2 minutes)
+
+3. Verify services are running:
+* Kafka UI: http://localhost:8080
+* H2 Console: http://localhost:8081/h2-console
+** JDBC URL: jdbc:h2:mem:outboxdb
+** Username: sa
+** Password: [empty]
+
+== Testing the Application
+
+=== Create an Order
+[source,bash]
+----
+curl -X POST http://localhost:8081/api/orders \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customerId": "customer123",
+    "productId": "product456",
+    "quantity": 2,
+    "price": 29.99
+  }'
+----
+
+=== Get Order by ID
+[source,bash]
+----
+curl http://localhost:8081/api/orders/{orderId}
+----
+
+== Architecture Components
+
+=== Kafka Cluster
+* 3-node Kafka cluster (kafka1, kafka2, kafka3)
+* Replication factor: 3
+* Topic: order-events
+
+=== Application
+* Native executable built with GraalVM
+* Exposed on port 8081
+* Uses H2 in-memory database
+* Implements outbox pattern for reliable event publishing
+
+== Monitoring
+
+=== Kafka UI
+Access the Kafka UI at http://localhost:8080 to:
+
+* Monitor topics
+* View messages
+* Check cluster health
+
+== Cleanup
+[source,bash]
+----
+docker-compose down
+----
